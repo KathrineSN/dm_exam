@@ -1,0 +1,78 @@
+---
+title: "data_load_sigrid"
+output: html_document
+date: '2022-12-05'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r setup}
+install.packages("pacman")
+
+pacman::p_load(tidyverse)
+```
+
+# loading data
+
+```{r setup}
+data <- load("data/IGTdata.rdata")
+
+# important!
+choice_100 <- as.data.frame(choice_100)
+wi_100 <- as.data.frame(wi_100)
+lo_100 <- as.data.frame(lo_100)
+
+```
+
+
+```{r make dataframe in specific format}
+df_final <- data.frame()
+
+for (i in 1:nrow(choice_100)) {
+  # creating trial, deck and subID columns 
+  sub_choice = choice_100 %>% slice(i)
+  sub_choice = gather(sub1_choice, "trial", "deck")
+  
+  sub_choice <- sub_choice %>% 
+    mutate(
+      trial = gsub("Choice_", "", trial)
+    )
+  
+  # adding gain column 
+  sub_win <- wi_100 %>% slice(i)
+  sub_win <- gather(sub_win, "trial", "gain")
+  sub_win <- sub_win %>% 
+    mutate(
+      trial = gsub("Wins_", "", trial)
+    )
+
+  # adding loss
+  sub_loss = lo_100 %>% slice(i)
+  sub_loss <- gather(sub_loss, "trial", "loss")
+  sub_loss <- sub_loss %>% 
+    mutate(
+      trial = gsub("Losses_", "", trial),
+      subjID = i # adding subject ID
+    )
+
+  # join dataframe
+  first_join = full_join(sub_choice, sub_win, by = "trial")
+  second_join = left_join(first_join, sub_loss, by = "trial")
+  
+  df_final <- rbind(df_final, second_join)
+}
+```
+
+
+
+```{r}
+# testing stuff
+string = "Choice_1"
+tester = gsub("Choice_", "", string)
+tester
+```
+
+
+
