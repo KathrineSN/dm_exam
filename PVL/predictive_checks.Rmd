@@ -16,51 +16,21 @@ MPD <- function(x) {
 }
 ```
 
-
 ```{r}
-load("../data/IGTdata.rdata") 
-
-choice_100 <- as.data.frame(choice_100)
-wi_100 <- as.data.frame(wi_100)
-lo_100 <- as.data.frame(lo_100)
+getwd()
 ```
 
+
+
 ```{r}
-df_final <- data.frame()
+source("../data_preprocessing.R")
 
-for (i in 1:nrow(choice_100)) {
-  # creating trial, deck and subID columns 
-  sub_choice = choice_100 %>% slice(i)
-  sub_choice = gather(sub_choice, "trial", "deck")
-  
-  sub_choice <- sub_choice %>% 
-    mutate(
-      trial = gsub("Choice_", "", trial)
-    )
-  
-  # adding gain column 
-  sub_win <- wi_100 %>% slice(i)
-  sub_win <- gather(sub_win, "trial", "gain")
-  sub_win <- sub_win %>% 
-    mutate(
-      trial = gsub("Wins_", "", trial)
-    )
+trials_95 <- data_preprocessing(choice_95, wi_95, lo_95)
+trials_100 <- data_preprocessing(choice_100, wi_100, lo_100)
+trials_150 <- data_preprocessing(choice_150, wi_150, lo_150)
 
-  # adding loss
-  sub_loss = lo_100 %>% slice(i)
-  sub_loss <- gather(sub_loss, "trial", "loss")
-  sub_loss <- sub_loss %>% 
-    mutate(
-      trial = gsub("Losses_", "", trial),
-      subjID = i # adding subject ID
-    )
-
-  # join dataframe
-  first_join = full_join(sub_choice, sub_win, by = "trial")
-  second_join = left_join(first_join, sub_loss, by = "trial")
-  
-  df_final <- rbind(df_final, second_join)
-}
+# make one big dataframe 
+df_final <- rbind(trials_95, trials_100, trials_150)
 ```
 
 ```{r}
