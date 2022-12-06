@@ -136,7 +136,7 @@ title(paste("Density plots (for recovered w, A, a & theta) with ntrials =", ntri
 
 ```{r}
 ###--------------Run full parameter recovery -------------
-niterations <- 5 # fewer because it takes too long
+niterations <- 100 # fewer because it takes too long
 
 true_w <- array(NA,c(niterations))
 true_A <- array(NA,c(niterations))
@@ -191,23 +191,6 @@ for (i in 1:niterations) {
 
 end_time = Sys.time()
 end_time - start_time
-
-# let's look at some scatter plots
-
-par(mfrow=c(3,2))
-plot(true_w,infer_w)
-plot(true_A,infer_A)
-plot(true_a,infer_a)
-plot(true_theta,infer_theta)
-
-# plotting code courtesy of Lasse
-source('216377/Module3/recov_plot.R')
-pl1 <- recov_plot(true_w, infer_w, c("true w", "infer w"), 'smoothed linear fit')
-pl2 <- recov_plot(true_A, infer_A, c("true A", "infer A"), 'smoothed linear fit')
-pl3 <- recov_plot(true_a, infer_a, c("true a", "infer a"), 'smoothed linear fit')
-pl4 <- recov_plot(true_theta, infer_theta, c("true theta", "infer theta"), 'smoothed linear fit')
-ggarrange(pl1, pl2, pl3, pl4)
-
 ```
 
 ```{r}
@@ -226,5 +209,16 @@ pl2 <- recov_plot(true_A, infer_A, c("true A", "infer A"), 'smoothed linear fit'
 pl3 <- recov_plot(true_a, infer_a, c("true a", "infer a"), 'smoothed linear fit')
 pl4 <- recov_plot(true_theta, infer_theta, c("true theta", "infer theta"), 'smoothed linear fit')
 ggarrange(pl1, pl2, pl3, pl4)
+```
+```{r}
+getwd()
+
+#ggsave(filename, plot, path)
+ggsave("PVL_recov_w.png", pl1)
+ggsave("PVL_recov_A.png", pl2)
+ggsave("PVL_recov_a.png", pl3)
+ggsave("PVL_recov_theta.png", pl4)
+
+
 ```
 
