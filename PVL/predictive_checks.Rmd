@@ -23,6 +23,9 @@ getwd()
 
 
 ```{r}
+data <- load("../data/IGTdata.rdata")
+
+
 source("../data_preprocessing.R")
 
 trials_95 <- data_preprocessing(choice_95, wi_95, lo_95)
@@ -30,7 +33,8 @@ trials_100 <- data_preprocessing(choice_100, wi_100, lo_100)
 trials_150 <- data_preprocessing(choice_150, wi_150, lo_150)
 
 # make one big dataframe 
-df_final <- rbind(trials_95, trials_100, trials_150)
+#df_final <- rbind(trials_95, trials_100, trials_150)
+df_final <- trials_100
 ```
 
 ```{r}
@@ -81,6 +85,17 @@ for (s in 1:nsubs) {
 getwd()
 ```
 
+```{r}
+x
+```
+
+```{r}
+X
+```
+
+```{r}
+getwd()
+```
 
 
 ```{r}
@@ -100,13 +115,22 @@ temp_samples <- jags.parallel(data, inits=NULL, params,
                               model.file ="PVL.txt",
                               n.chains=3, n.iter=5000, n.burnin=1000, n.thin=1, n.cluster=4)
 
+
+```
+
+```{r}
 # let's look at the posteriors for the parameters
 par(mfrow=c(2,2))
-plot(density(temp_samples$BUGSoutput$sims.list$w))
-plot(density(temp_samples$BUGSoutput$sims.list$A))
-plot(density(temp_samples$BUGSoutput$sims.list$theta))
-plot(density(temp_samples$BUGSoutput$sims.list$a))
+plot(density(temp_samples$BUGSoutput$sims.list$w), main = "w")
+plot(density(temp_samples$BUGSoutput$sims.list$A), main = "A")
+plot(density(temp_samples$BUGSoutput$sims.list$theta), main = expression(theta))
+plot(density(temp_samples$BUGSoutput$sims.list$a), main = "a")
+mtext("Posterior distributions",                   # Add main title
+      side = 3,
+      line = - 1,
+      outer = TRUE)
 ```
+
 
 
 ```{r}
