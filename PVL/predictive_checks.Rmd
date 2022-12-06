@@ -1,0 +1,50 @@
+
+
+```{r, include=FALSE}
+
+# Installing packages
+install.packages("pacman")
+pacman::p_load(R2jags, parallel, ggplot2, tidyverse)
+set.seed(1982)
+```
+
+```{r}
+# defining a function for calculating the maximum of the posterior density (not exactly the same as the mode)
+
+MPD <- function(x) {
+  density(x)$x[which(density(x)$y==max(density(x)$y))]
+}
+
+```
+
+
+```{r}
+load("../data/IGTdata.rdata") 
+
+df = data.frame()
+
+n_rows = dim(choice_100)[1] * dim(choice_100)[2] 
+n_cols = 5
+
+# Example 2 - Using matrix()
+df = data.frame(matrix(nrow = n_rows, ncol = n_cols)) 
+names <- c("trial", "deck", "gain", "loss", "subjID")
+colnames(df) <- names
+
+df
+```
+
+```{r}
+rownames(choice_100)[1]
+```
+
+
+
+
+
+
+```{r}
+df[,2] = c(choice_100[i,])
+
+```
+
