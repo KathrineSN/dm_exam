@@ -23,10 +23,10 @@ getwd()
 
 
 ```{r}
-data <- load("../data/IGTdata.rdata")
+data <- load("../../data/IGTdata.rdata")
 
 
-source("../data_preprocessing.R")
+source("../../data_preprocessing.R")
 
 trials_95 <- data_preprocessing(choice_95, wi_95, lo_95)
 trials_100 <- data_preprocessing(choice_100, wi_100, lo_100)
@@ -81,22 +81,6 @@ for (s in 1:nsubs) {
 }
 ```
 
-```{r}
-getwd()
-```
-
-```{r}
-x
-```
-
-```{r}
-X
-```
-
-```{r}
-getwd()
-```
-
 
 ```{r}
 #----------testing our data curation by running JAGS on one subject
@@ -112,7 +96,7 @@ ntrials <- ntrials_all[1]
 data <- list("x","X","ntrials") 
 params<-c("w","A","theta","a","p")
 temp_samples <- jags.parallel(data, inits=NULL, params,
-                              model.file ="PVL.txt",
+                              model.file ="../PVL.txt",
                               n.chains=3, n.iter=5000, n.burnin=1000, n.thin=1, n.cluster=4)
 
 
@@ -185,7 +169,7 @@ for (s in 1:nsubs) {
   data <- list("x","X","ntrials") 
   params<-c("w","A","theta","a","p")
   temp_samples <- jags.parallel(data, inits=NULL, params,
-                                model.file ="PVL.txt",
+                                model.file ="../PVL.txt",
                                 n.chains=3, n.iter=5000, n.burnin=1000, n.thin=1, n.cluster=4)
   
   p_post <- temp_samples$BUGSoutput$sims.list$p
