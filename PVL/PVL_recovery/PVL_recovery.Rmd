@@ -10,10 +10,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r install packages}
 install.packages("pacman")
-pacman::p_load(hesim, extraDistr, R2jags, parallel, ggpubr, tidyverse)
+pacman::p_load(hesim, extraDistr, R2jags, parallel, ggpubr, tidyverse, R2jags)
 #pacman::p_load('tidyverse') #'patchwork')
 # setting seed
 set.seed(1982)
+
+#if problems uninstall ggplot2, install it again, and then reload tidyverse
 ```
 
 
@@ -83,7 +85,7 @@ a <- .1 # learning rate parameter (aka. prediction error weighting)
 
 getwd()
 
-source("PVL.R")
+source("../PVL.R")
 #source("216377/Module3/PVL.R")
 PVL_sims <- PVL(payoff,ntrials,w,A,a,theta)
 
@@ -118,7 +120,7 @@ X <- PVL_sims$X # payoff
 data <- list("x","X","ntrials") 
 params<-c("w","A","theta","a")
 temp_samples <- jags.parallel(data, inits=NULL, params,
-                     model.file ="PVL.txt",
+                     model.file ="../PVL.txt",
                      n.chains=3, n.iter=5000, n.burnin=1000, n.thin=1)
 
 recov_w <- temp_samples$BUGSoutput$sims.list$w
@@ -169,7 +171,7 @@ for (i in 1:niterations) {
   data <- list("x","X","ntrials") 
   params<-c("w","A","a","theta")
   samples <- jags.parallel(data, inits=NULL, params,
-                           model.file ="PVL.txt", n.chains=3, 
+                           model.file ="../PVL.txt", n.chains=3, 
                            n.iter=5000, n.burnin=1000, n.thin=1, n.cluster=64)
   
   
@@ -191,7 +193,25 @@ for (i in 1:niterations) {
 
 end_time = Sys.time()
 end_time - start_time
+
+# run time = < 1 hour with 64 cpu 
 ```
+
+```{r}
+# save infer og true values - arrays (list? )
+saveRDS(infer_A, file = "saved_jags_output/infer_A_risk.rds")
+saveRDS(infer_a, file = "saved_jags_output/infer_alpha.rds")
+saveRDS(infer_w, file = "saved_jags_output/infer_w.rds")
+saveRDS(infer_theta, file = "saved_jags_output/infer_theta.rds")
+saveRDS(true_A, file = "saved_jags_output/true_A_risk.rds")
+saveRDS(true_a, file = "saved_jags_output/true_alpha.rds")
+saveRDS(true_w, file = "saved_jags_output/true_w.rds")
+saveRDS(true_theta, file = "saved_jags_output/true_theta.rds")
+
+# how to read
+#test = readRDS("saved_jags_output/infer_A.rds")
+```
+
 
 ```{r}
 # let's look at some scatter plots
@@ -203,6 +223,7 @@ end_time - start_time
 #plot(true_theta,infer_theta)
 
 # plotting code courtesy of Lasse
+getwd()
 source('recov_plot.R')
 pl1 <- recov_plot(true_w, infer_w, c("true w", "infer w"), 'smoothed linear fit')
 pl2 <- recov_plot(true_A, infer_A, c("true A", "infer A"), 'smoothed linear fit')
@@ -210,14 +231,20 @@ pl3 <- recov_plot(true_a, infer_a, c("true a", "infer a"), 'smoothed linear fit'
 pl4 <- recov_plot(true_theta, infer_theta, c("true theta", "infer theta"), 'smoothed linear fit')
 ggarrange(pl1, pl2, pl3, pl4)
 ```
+
+```{r}
+# make better plots - see Haines article
+```
+
+
 ```{r}
 getwd()
 
 #ggsave(filename, plot, path)
-ggsave("PVL_recov_w.png", pl1)
-ggsave("PVL_recov_A.png", pl2)
-ggsave("PVL_recov_a.png", pl3)
-ggsave("PVL_recov_theta.png", pl4)
+#ggsave("PVL_recov_w.png", pl1)
+#ggsave("PVL_recov_A.png", pl2)
+#ggsave("PVL_recov_a.png", pl3)
+#ggsave("PVL_recov_theta.png", pl4)
 
 
 ```
