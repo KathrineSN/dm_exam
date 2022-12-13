@@ -85,6 +85,7 @@ payoff <- cbind(A,B,C,D)/100 # combining all four decks as columns with each 100
 colSums(payoff) # the two bad decks should sum to -25 (i.e. -2500), and the two good ones to 25 (i.e. 2500)
 #----------------------------------------------------
 ```
+
 ```{r}
 #-------test ORL delta function and jags script ---------
 
@@ -121,7 +122,7 @@ samples <- jags.parallel(data, inits=NULL, params,
 
 ```{r}
 ###--------------Run full parameter recovery -------------
-niterations <- 10 # fewer because it takes too long
+niterations <- 100 # fewer because it takes too long
 
 true_a_rew <- array(NA,c(niterations))
 true_a_pun <- array(NA,c(niterations))
@@ -158,7 +159,7 @@ for (i in 1:niterations) {
   data <- list("x","X","ntrials") 
   params<-c("a_rew","a_pun","K","theta","omega_f","omega_p")
   samples <- jags.parallel(data, inits=NULL, params,
-                  model.file ="216377/Module3/ORL.txt", n.chains=3, 
+                  model.file ="../ORL.txt", n.chains=3, 
                   n.iter=3000, n.burnin=1000, n.thin=1, n.cluster=64)
   
   
@@ -184,7 +185,35 @@ for (i in 1:niterations) {
 
 end_time = Sys.time()
 end_time - start_time
+
+# 1 hour på 64 cpu
 ```
+
+```{r}
+getwd()
+```
+
+
+```{r}
+# save infer og true values - arrays (list? )
+saveRDS(infer_a_rew, file = "saved_jags_output/infer_a_rew.rds")
+saveRDS(infer_a_pun, file = "saved_jags_output/infer_a_pun.rds")
+saveRDS(infer_K, file = "saved_jags_output/infer_K.rds")
+saveRDS(infer_theta, file = "saved_jags_output/infer_theta.rds")
+saveRDS(infer_omega_f, file = "saved_jags_output/infer_omega_f.rds")
+saveRDS(infer_omega_p, file = "saved_jags_output/infer_omega_p.rds")
+
+saveRDS(true_a_rew, file = "saved_jags_output/true_a_rew.rds")
+saveRDS(true_a_pun, file = "saved_jags_output/true_a_pun.rds")
+saveRDS(true_K, file = "saved_jags_output/true_K.rds")
+saveRDS(true_theta, file = "saved_jags_output/true_theta.rds")
+saveRDS(true_omega_f, file = "saved_jags_output/true_omega_f.rds")
+saveRDS(true_omega_p, file = "saved_jags_output/true_omega_p.rds")
+
+# how to read
+#test = readRDS("saved_jags_output/infer_A.rds")
+```
+
 
 ```{r}
 # let's look at some scatter plots
@@ -198,7 +227,7 @@ plot(true_omega_f,infer_omega_f)
 plot(true_omega_p,infer_omega_p)
 
 # plotting code courtesy of Lasse
-source('216377/Module3/recov_plot.R')
+source('../../PVL/PVL_recovery/recov_plot.R')
 pl1 <- recov_plot(true_a_rew, infer_a_rew, c("true a_rew", "infer a_rew"), 'smoothed linear fit')
 pl2 <- recov_plot(true_a_pun, infer_a_pun, c("true a_pun", "infer a_pun"), 'smoothed linear fit')
 pl3 <- recov_plot(true_K, infer_K, c("true K", "infer K"), 'smoothed linear fit')
@@ -220,5 +249,15 @@ ggarrange(pl1, pl2, pl3, pl4, pl5, pl6)
 # plot(infer_a_rew,infer_omega_f)
 # plot(true_a_rew,true_omega_p)
 # plot(infer_a_rew,infer_omega_p)
+```
+```{r}
+#ggsave(filename, plot, path)
+
+ggsave("ORL_recov_a_rew.png", pl1)
+ggsave("ORL_recov_a_pun.png", pl2)
+ggsave("ORL_recov_K.png", pl3)
+ggsave("ORL_recov_theta.png", pl4)
+ggsave("ORL_recov_omega_f.png", pl5)
+ggsave("ORL_recov_omega_p.png", pl6)
 ```
 
