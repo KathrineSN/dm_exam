@@ -1,13 +1,30 @@
+---
+title: "ORL_recovery"
+output: html_document
+date: '2022-12-13'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r install packages}
 install.packages("pacman")
-pacman::p_load(hesim, extraDistr, R2jags, parallel, ggpubr)
+library('pacman')
+pacman::p_load(hesim, extraDistr, R2jags, parallel, ggpubr, tidyverse)
 
 set.seed(1982)
+```
 
+```{r}
 # defining a function for calculating the maximum of the posterior density (not exactly the same as the mode)
 MPD <- function(x) {
   density(x)$x[which(density(x)$y==max(density(x)$y))]
 }
+```
 
+
+```{r}
 
 #------ create task environment -------------------
 # NB! mod(ntrials, nstruct) (aka. ntrials %% nstruct) must be 0
@@ -67,8 +84,8 @@ payoff <- cbind(A,B,C,D)/100 # combining all four decks as columns with each 100
 # let's look at the payoff
 colSums(payoff) # the two bad decks should sum to -25 (i.e. -2500), and the two good ones to 25 (i.e. 2500)
 #----------------------------------------------------
-
-
+```
+```{r}
 #-------test ORL delta function and jags script ---------
 
 #---set params
@@ -82,7 +99,7 @@ omega_p <- .7
 
 #ntrials <- 100
 
-source("216377/Module3/ORL.R")
+source("../ORL.R")
 ORL_sims <- ORL(payoff,ntrials,a_rew,a_pun,K,theta,omega_f,omega_p)
 
 par(mfrow=c(2,2))
@@ -98,10 +115,11 @@ X <- ORL_sims$X
 data <- list("x","X","ntrials") 
 params<-c("a_rew","a_pun","K","theta","omega_f","omega_p")
 samples <- jags.parallel(data, inits=NULL, params,
-                model.file ="216377/Module3/ORL.txt", n.chains=3, 
+                model.file ="../ORL.txt", n.chains=3, 
                 n.iter=5000, n.burnin=1000, n.thin=1, n.cluster=64)
+```
 
-
+```{r}
 ###--------------Run full parameter recovery -------------
 niterations <- 10 # fewer because it takes too long
 
@@ -166,7 +184,9 @@ for (i in 1:niterations) {
 
 end_time = Sys.time()
 end_time - start_time
+```
 
+```{r}
 # let's look at some scatter plots
 
 par(mfrow=c(3,2))
@@ -200,12 +220,5 @@ ggarrange(pl1, pl2, pl3, pl4, pl5, pl6)
 # plot(infer_a_rew,infer_omega_f)
 # plot(true_a_rew,true_omega_p)
 # plot(infer_a_rew,infer_omega_p)
-
-
-
-
-
-
-
-
+```
 
