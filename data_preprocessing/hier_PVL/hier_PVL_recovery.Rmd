@@ -88,17 +88,15 @@ colSums(payoff) # the two bad decks should sum to -25 (i.e. -2500), and the two 
 # cut the last 5 rows of payoff 
 payoff <- as_tibble(payoff)
 payoff <- payoff %>% slice(1:95)
-
-getwd()
+payoff <- data.matrix(payoff)
 ```
 
-
-Here, we run the parameter recovery wiht 95, 100 and 150 trials to see if there is a notable difference.
+Here, we run the parameter recovery wiht 95 and 100 trials to see if there is a notable difference.
 number of trials is updated above before the payoff structure is built
 
 ```{r}
 ###--------------Run full parameter recovery -------------
-niterations <- 10 # fewer because it takes too long
+niterations <- 100 # fewer because it takes too long
 nsubs <- 247 # mimicking the data structure from Ahn et al.
 ntrials_all <- rep(95, 247) # all 48 subs have 100 trials each
 ntrials <- 95
@@ -186,11 +184,14 @@ end_time = Sys.time()
 end_time - start_time
 
 ```
+```{r}
+getwd()
+```
 
 ```{r plots}
 # let's look at some scatter plots
 # plotting code courtesy of Lasse
-source('216377/Module4/recov_plot.R')
+source('../../PVL/PVL_recovery/recov_plot.R')
 pl1 <- recov_plot(true_mu_w, infer_mu_w, c("true mu_w", "infer mu_w"), 'smoothed linear fit')
 pl2 <- recov_plot(true_mu_A, infer_mu_A, c("true mu_A", "infer mu_A"), 'smoothed linear fit')
 pl3 <- recov_plot(true_mu_theta, infer_mu_theta, c("true mu_theta", "infer mu_theta"), 'smoothed linear fit')
