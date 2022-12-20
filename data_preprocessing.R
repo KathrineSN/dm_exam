@@ -1,11 +1,31 @@
 # function which formats the data into the desired layout
-data_preprocessing <- function(choice_no, wi_no, lo_no){
+data_preprocessing <- function(choice_no, wi_no, lo_no, exclude_data = FALSE){
   
-  choice_no <- as.data.frame(choice_no)
-  wi_no <- as.data.frame(wi_no)
-  lo_no <- as.data.frame(lo_no)
+  # choice_no <- as.data.frame(choice_no)
+  # wi_no <- as.data.frame(wi_no)
+  # lo_no <- as.data.frame(lo_no)
+  # # 
+  choice_no <- as_tibble(choice_no)
+  wi_no <- as_tibble(wi_no)
+  lo_no <- as_tibble(lo_no)
+
+  if (exclude_data) { # only for datasets with 100 trials 
+    # selecting relevant studies
+    choice_no <- choice_no %>% 
+      slice(163:181, 292:504) %>% 
+      select(1:95) # keep only the 95 first trials
+    
+    wi_no <- wi_no %>% 
+      slice(163:181, 292:504) %>% 
+      select(1:95)
+    
+    lo_no <- lo_no %>% 
+      slice(163:181, 292:504) %>% 
+      select(1:95) # keep only the 95 first trials
+  }
   
-  df_final <- data.frame()
+  #df_final <- data.frame()
+  df_final <- tibble()
   
   for (i in 1:nrow(choice_no)) {
     # creating trial and deck  columns 
