@@ -23,7 +23,6 @@ MPD <- function(x) {
 ```
 
 
-
 ```{r}
 #------ create task environment -------------------
 # NB! mod(ntrials, nstruct) (aka. ntrials %% nstruct) must be 0
@@ -87,6 +86,10 @@ colSums(payoff) # the two bad decks should sum to -25 (i.e. -2500), and the two 
 
 ```{r}
 # cut the last 5 rows of payoff 
+payoff <- as_tibble(payoff)
+payoff <- payoff %>% slice(1:95)
+
+getwd()
 ```
 
 
@@ -95,9 +98,10 @@ number of trials is updated above before the payoff structure is built
 
 ```{r}
 ###--------------Run full parameter recovery -------------
-niterations <- 100 # fewer because it takes too long
-nsubs <- 48 # mimicking the data structure from Ahn et al.
-ntrials_all <- rep(100, 48) # all 48 subs have 100 trials each
+niterations <- 10 # fewer because it takes too long
+nsubs <- 247 # mimicking the data structure from Ahn et al.
+ntrials_all <- rep(95, 247) # all 48 subs have 100 trials each
+ntrials <- 95
 
 # mu
 true_mu_w <- array(NA,c(niterations))
@@ -136,7 +140,7 @@ for (i in 1:niterations) {
   sigma_theta <- runif(1,0,0.2)
   sigma_a <- runif(1,0,0.1)
   
-  source('dm_exam/data_preprocessing/hier_PVL/hier_PVL_sim.R')
+  source('hier_PVL_sim.R')
   PVL_sims <- hier_PVL_sim(payoff,nsubs,ntrials,mu_w,mu_A,mu_a,mu_theta,
                   sigma_w, sigma_A, sigma_a, sigma_theta)
   
@@ -147,7 +151,7 @@ for (i in 1:niterations) {
   data <- list("x","X","ntrials","nsubs") 
   params<-c("mu_w","mu_A","mu_theta","mu_a","lambda_w","lambda_A","lambda_theta","lambda_a")
   samples <- jags.parallel(data, inits=NULL, params,
-                           model.file ="work/dm_exam/data_preprocessing/hier_PVL/hier_PVL.txt",
+                           model.file ="hier_PVL.txt",
                            n.chains=3, n.iter=3000, n.burnin=1000, n.thin=1, n.cluster=4)
   
   # mu
