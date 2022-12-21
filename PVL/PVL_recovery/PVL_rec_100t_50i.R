@@ -143,9 +143,7 @@ ggarrange(pl1, pl2, pl3, pl4)
 
 ggsave("jags_output_100t_50i/PVL_rec_100t_232_50i_all_params.png", width = 2000, height = 1150, units = 'px', dpi = 150)
 
-ggsave(pl1, "jags_output_100t_50i/PVL_rec_100t_232_50i_w.png", width = 2000, height = 1150, units = 'px', dpi = 150)
-ggsave(pl2, "jags_output_100t_50i/PVL_rec_100t_232_50i_A_risk.png", width = 2000, height = 1150, units = 'px', dpi = 150)
-ggsave(pl3, "jags_output_100t_50i/PVL_rec_100t_232_50i_alpha.png", width = 2000, height = 1150, units = 'px', dpi = 150)
-ggsave(pl4, "jags_output_100t_50i/PVL_rec_100t_232_50i_theta.png", width = 2000, height = 1150, units = 'px', dpi = 150)
-
-
+ggsave("jags_output_100t_50i/PVL_rec_100t_232_50i_w.png",pl1, width = 2000, height = 1150, units = 'px', dpi = 150)
+ggsave("jags_output_100t_50i/PVL_rec_100t_232_50i_A_risk.png",pl2, width = 2000, height = 1150, units = 'px', dpi = 150)
+ggsave("jags_output_100t_50i/PVL_rec_100t_232_50i_alpha.png",pl3, width = 2000, height = 1150, units = 'px', dpi = 150)
+ggsave("jags_output_100t_50i/PVL_rec_100t_232_50i_theta.png",pl4, width = 2000, height = 1150, units = 'px', dpi = 150)
