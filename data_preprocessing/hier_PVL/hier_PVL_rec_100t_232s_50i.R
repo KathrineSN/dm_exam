@@ -172,34 +172,24 @@ end_time - start_time
 #saveRDS(true_a, "testing.rds")
 
 saveRDS(true_mu_w, "jags_output_100t_232s_50i/true_mu_w.rds")
-saveRDS(true_mu_A, "jags_output_100t_232s_50i/true_mu_A.rds")
+saveRDS(true_mu_A, "jags_output_100t_232s_50i/true_mu_A_risk.rds")
 saveRDS(true_mu_theta, "jags_output_100t_232s_50i/true_mu_theta.rds")
-saveRDS(true_mu_a, "jags_output_100t_232s_50i/true_mu_a.rds")
+saveRDS(true_mu_a, "jags_output_100t_232s_50i/true_mu_alpha.rds")
 
 saveRDS(infer_mu_w, "jags_output_100t_232s_50i/infer_mu_w.rds")
-saveRDS(infer_mu_A, "jags_output_100t_232s_50i/infer_mu_A.rds")
+saveRDS(infer_mu_A, "jags_output_100t_232s_50i/infer_mu_A_risk.rds")
 saveRDS(infer_mu_theta, "jags_output_100t_232s_50i/infer_mu_theta.rds")
-saveRDS(infer_mu_a, "jags_output_100t_232s_50i/infer_mu_a.rds")
+saveRDS(infer_mu_a, "jags_output_100t_232s_50i/infer_mu_alpha.rds")
 
 saveRDS(true_lambda_w, "jags_output_100t_232s_50i/true_lambda_w.rds")
-saveRDS(true_lambda_A, "jags_output_100t_232s_50i/true_lambda_A.rds")
+saveRDS(true_lambda_A, "jags_output_100t_232s_50i/true_lambda_A_risk.rds")
 saveRDS(true_lambda_theta, "jags_output_100t_232s_50i/true_lambda_theta.rds")
-saveRDS(true_lambda_a, "jags_output_100t_232s_50i/true_lambda_a.rds")
+saveRDS(true_lambda_a, "jags_output_100t_232s_50i/true_lambda_alpha.rds")
 
 saveRDS(infer_lambda_w, "jags_output_100t_232s_50i/infer_lambda_w.rds")
-saveRDS(infer_lambda_A, "jags_output_100t_232s_50i/infer_lambda_A.rds")
+saveRDS(infer_lambda_A, "jags_output_100t_232s_50i/infer_lambda_A_risk.rds")
 saveRDS(infer_lambda_theta, "jags_output_100t_232s_50i/infer_lambda_theta.rds")
-saveRDS(infer_lambda_a, "jags_output_100t_232s_50i/infer_lambda_a.rds")
-
-saveRDS(true_lambda_w_sd, "jags_output_100t_232s_50i/true_lambda_w_sd.rds")
-saveRDS(true_lambda_A_sd, "jags_output_100t_232s_50i/true_lambda_A_sd.rds")
-saveRDS(true_lambda_theta_sd, "jags_output_100t_232s_50i/true_lambda_theta_sd.rds")
-saveRDS(true_lambda_a_sd, "jags_output_100t_232s_50i/true_lambda_a_sd.rds")
-
-saveRDS(infer_lambda_w_sd, "jags_output_100t_232s_50i/infer_lambda_w_sd.rds")
-saveRDS(infer_lambda_A_sd, "jags_output_100t_232s_50i/infer_lambda_A_sd.rds")
-saveRDS(infer_lambda_theta_sd, "jags_output_100t_232s_50i/infer_lambda_theta_sd.rds")
-saveRDS(infer_lambda_a_sd, "jags_output_100t_232s_50i/infer_lambda_a_sd.rds")
+saveRDS(infer_lambda_a, "jags_output_100t_232s_50i/infer_lambda_alpha.rds")
 
 ################ plots
 
