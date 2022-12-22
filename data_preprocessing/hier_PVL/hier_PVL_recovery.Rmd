@@ -23,6 +23,7 @@ MPD <- function(x) {
 ```
 
 
+
 ```{r}
 #------ create task environment -------------------
 # NB! mod(ntrials, nstruct) (aka. ntrials %% nstruct) must be 0
@@ -86,12 +87,10 @@ colSums(payoff) # the two bad decks should sum to -25 (i.e. -2500), and the two 
 
 ```{r}
 # cut the last 5 rows of payoff 
-payoff <- as_tibble(payoff)
-payoff <- payoff %>% slice(1:95)
-payoff <- data.matrix(payoff)
 ```
 
-Here, we run the parameter recovery wiht 95 and 100 trials to see if there is a notable difference.
+
+Here, we run the parameter recovery wiht 95, 100 and 150 trials to see if there is a notable difference.
 number of trials is updated above before the payoff structure is built
 
 ```{r}
@@ -138,7 +137,7 @@ for (i in 1:niterations) {
   sigma_theta <- runif(1,0,0.2)
   sigma_a <- runif(1,0,0.1)
   
-  source('hier_PVL_sim.R')
+  source('dm_exam/data_preprocessing/hier_PVL/hier_PVL_sim.R')
   PVL_sims <- hier_PVL_sim(payoff,nsubs,ntrials,mu_w,mu_A,mu_a,mu_theta,
                   sigma_w, sigma_A, sigma_a, sigma_theta)
   
@@ -149,7 +148,7 @@ for (i in 1:niterations) {
   data <- list("x","X","ntrials","nsubs") 
   params<-c("mu_w","mu_A","mu_theta","mu_a","lambda_w","lambda_A","lambda_theta","lambda_a")
   samples <- jags.parallel(data, inits=NULL, params,
-                           model.file ="hier_PVL.txt",
+                           model.file ="work/dm_exam/data_preprocessing/hier_PVL/hier_PVL.txt",
                            n.chains=3, n.iter=3000, n.burnin=1000, n.thin=1, n.cluster=4)
   
   # mu
@@ -184,41 +183,28 @@ end_time = Sys.time()
 end_time - start_time
 
 ```
-```{r}
-getwd()
-```
 
 ```{r}
 #saveRDS(true_a, "testing.rds")
 saveRDS(true_mu_w, "jags_output_95t_247s_100i/true_mu_w.rds")
-saveRDS(true_mu_A, "jags_output_95t_247s_100i/true_mu_A.rds")
+saveRDS(true_mu_A, "jags_output_95t_247s_100i/true_mu_A_risk.rds")
 saveRDS(true_mu_theta, "jags_output_95t_247s_100i/true_mu_theta.rds")
-saveRDS(true_mu_a, "jags_output_95t_247s_100i/true_mu_a.rds")
+saveRDS(true_mu_a, "jags_output_95t_247s_100i/true_mu_alpha.rds")
 
 saveRDS(infer_mu_w, "jags_output_95t_247s_100i/infer_mu_w.rds")
-saveRDS(infer_mu_A, "jags_output_95t_247s_100i/infer_mu_A.rds")
+saveRDS(infer_mu_A, "jags_output_95t_247s_100i/infer_mu_A_risk.rds")
 saveRDS(infer_mu_theta, "jags_output_95t_247s_100i/infer_mu_theta.rds")
-saveRDS(infer_mu_a, "jags_output_95t_247s_100i/infer_mu_a.rds")
+saveRDS(infer_mu_a, "jags_output_95t_247s_100i/infer_mu_alpha.rds")
 
 saveRDS(true_lambda_w, "jags_output_95t_247s_100i/true_lambda_w.rds")
-saveRDS(true_lambda_A, "jags_output_95t_247s_100i/true_lambda_A.rds")
+saveRDS(true_lambda_A, "jags_output_95t_247s_100i/true_lambda_A_risk.rds")
 saveRDS(true_lambda_theta, "jags_output_95t_247s_100i/true_lambda_theta.rds")
-saveRDS(true_lambda_a, "jags_output_95t_247s_100i/true_lambda_a.rds")
+saveRDS(true_lambda_a, "jags_output_95t_247s_100i/true_lambda_alpha.rds")
 
 saveRDS(infer_lambda_w, "jags_output_95t_247s_100i/infer_lambda_w.rds")
-saveRDS(infer_lambda_A, "jags_output_95t_247s_100i/infer_lambda_A.rds")
+saveRDS(infer_lambda_A, "jags_output_95t_247s_100i/infer_lambda_A_risk.rds")
 saveRDS(infer_lambda_theta, "jags_output_95t_247s_100i/infer_lambda_theta.rds")
-saveRDS(infer_lambda_a, "jags_output_95t_247s_100i/infer_lambda_a.rds")
-
-saveRDS(true_lambda_w_sd, "jags_output_95t_247s_100i/true_lambda_w_sd.rds")
-saveRDS(true_lambda_A_sd, "jags_output_95t_247s_100i/true_lambda_A_sd.rds")
-saveRDS(true_lambda_theta_sd, "jags_output_95t_247s_100i/true_lambda_theta_sd.rds")
-saveRDS(true_lambda_a_sd, "jags_output_95t_247s_100i/true_lambda_a_sd.rds")
-
-saveRDS(infer_lambda_w_sd, "jags_output_95t_247s_100i/infer_lambda_w_sd.rds")
-saveRDS(infer_lambda_A_sd, "jags_output_95t_247s_100i/infer_lambda_A_sd.rds")
-saveRDS(infer_lambda_theta_sd, "jags_output_95t_247s_100i/infer_lambda_theta_sd.rds")
-saveRDS(infer_lambda_a_sd, "jags_output_95t_247s_100i/infer_lambda_a_sd.rds")
+saveRDS(infer_lambda_a, "jags_output_95t_247s_100i/infer_lambda_alpha.rds")
 ```
 
 
@@ -231,6 +217,7 @@ pl2 <- recov_plot(true_mu_A, infer_mu_A, c("true mu_A", "infer mu_A"), 'smoothed
 pl3 <- recov_plot(true_mu_theta, infer_mu_theta, c("true mu_theta", "infer mu_theta"), 'smoothed linear fit')
 pl4 <- recov_plot(true_mu_a, infer_mu_a, c("true mu_a", "infer mu_a"), 'smoothed linear fit')
 ggarrange(pl1, pl2, pl3, pl4)
+ggsave("jags_output_95t_247s_100i/hier_PVL_rec_95t_247s_100i_mu.png", width = 2000, height = 1150, units = 'px', dpi = 150) ##### CHANGE HERE
 
 # sigma (aka. true_lambda) re-coded as precision
 pl1 <- recov_plot(infer_lambda_w, 1/(true_lambda_w^2), c("infer lambda_w","true lambda_w"), 'smoothed linear fit')
@@ -238,6 +225,7 @@ pl2 <- recov_plot(infer_lambda_A, 1/(true_lambda_A^2), c("infer lambda_A","true 
 pl3 <- recov_plot(infer_lambda_theta, 1/(true_lambda_theta^2), c("infer lambda_theta", "true lambda_theta"), 'smoothed linear fit')
 pl4 <- recov_plot(infer_lambda_a, 1/(true_lambda_a^2), c("infer lambda_a", "true lambda_a"), 'smoothed linear fit')
 ggarrange(pl1, pl2, pl3, pl4)
+ggsave("jags_output_95t_247s_100i/hier_PVL_rec_95t_247s_100i_lambda.png", width = 2000, height = 1150, units = 'px', dpi = 150)
 
 # lambda (aka. infer_lambda) re-coded as SD
 pl1 <- recov_plot(1/sqrt(infer_lambda_w), true_lambda_w, c("infer lambda_w","true lambda_w"), 'smoothed linear fit')
@@ -245,6 +233,7 @@ pl2 <- recov_plot(1/sqrt(infer_lambda_A), true_lambda_A, c("infer lambda_A","tru
 pl3 <- recov_plot(1/sqrt(infer_lambda_theta), true_lambda_theta, c("infer lambda_theta", "true lambda_theta"), 'smoothed linear fit')
 pl4 <- recov_plot(1/sqrt(infer_lambda_a), true_lambda_a, c("infer lambda_a", "true lambda_a"), 'smoothed linear fit')
 ggarrange(pl1, pl2, pl3, pl4)
+ggsave("jags_output_95t_247s_100i/hier_PVL_rec_95t_247s_100i_lambda_sd.png", width = 2000, height = 1150, units = 'px', dpi = 150)
 
 
 ###########################################################
