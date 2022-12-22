@@ -1,5 +1,6 @@
 #install and load packages
 install.packages(c('R2jags', 'ggpubr', 'extraDistr', 'truncnorm', 'tidyverse', 'parallel', 'pacman'))
+library('pacman')
 pacman::p_load(R2jags, parallel, ggpubr, extraDistr, truncnorm, tidyverse)
 
 set.seed(1982)
