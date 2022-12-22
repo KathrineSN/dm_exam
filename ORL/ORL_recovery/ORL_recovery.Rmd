@@ -253,6 +253,14 @@ ggarrange(pl1, pl2, pl3, pl4, pl5, pl6)
 ```{r}
 #ggsave(filename, plot, path)
 
+<<<<<<< HEAD
+ggsave("ORL_recov_a_rew.png", pl1)
+ggsave("ORL_recov_a_pun.png", pl2)
+ggsave("ORL_recov_K.png", pl3)
+ggsave("ORL_recov_theta.png", pl4)
+ggsave("ORL_recov_omega_f.png", pl5)
+ggsave("ORL_recov_omega_p.png", pl6)
+=======
 ggsave("", pl1,)
 
 
@@ -264,5 +272,6 @@ pl5 <- recov_plot(true_omega_f, infer_omega_f, c("true omega_f", "infer omega_f"
 pl6 <- recov_plot(true_omega_p, infer_omega_p, c("true omega_p", "infer omega_p"), 'smoothed linear fit')
 ggarrange(pl1, pl2, pl3, pl4, pl5, pl6)
 
+>>>>>>> sigrid_branch
 ```
 
