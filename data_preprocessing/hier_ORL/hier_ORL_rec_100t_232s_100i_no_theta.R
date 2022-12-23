@@ -73,7 +73,7 @@ payoff <- cbind(A,B,C,D)/100 # combining all four decks as columns with each 100
 colSums(payoff) # the two bad decks should sum to -25 (i.e. -2500), and the two good ones to 25 (i.e. 2500)
 
 ###--------------Run full parameter recovery -------------
-niterations <- 50 # fewer because it takes too long
+niterations <- 100 # fewer because it takes too long
 nsubs <- 232 # mimicking the data structure from Ahn et al.
 ntrials_all <- rep(100, 232) # all 48 simulated subs have 100 trials each
 
@@ -190,33 +190,33 @@ end_time - start_time
 
 # saving jags output
 # true mu
-saveRDS(true_mu_a_rew, "jags_output_100t_232s_50i_no_theta/true_mu_a_rew.rds")
-saveRDS(true_mu_a_pun, "jags_output_100t_232s_50i_no_theta/true_mu_a_pun.rds")
-saveRDS(true_mu_K, "jags_output_100t_232s_50i_no_theta/true_mu_K.rds")
-#saveRDS(true_mu_theta, "jags_output_100t_232s_50i_no_theta/true_mu_theta.rds")
-saveRDS(true_mu_omega_f, "jags_output_100t_232s_50i_no_theta/true_mu_omega_f.rds")
-saveRDS(true_mu_omega_p, "jags_output_100t_232s_50i_no_theta/true_mu_omega_p.rds")
+saveRDS(true_mu_a_rew, "jags_output_100t_232s_100i_no_theta/true_mu_a_rew.rds")
+saveRDS(true_mu_a_pun, "jags_output_100t_232s_100i_no_theta/true_mu_a_pun.rds")
+saveRDS(true_mu_K, "jags_output_100t_232s_100i_no_theta/true_mu_K.rds")
+#saveRDS(true_mu_theta, "jags_output_100t_232s_100i_no_theta/true_mu_theta.rds")
+saveRDS(true_mu_omega_f, "jags_output_100t_232s_100i_no_theta/true_mu_omega_f.rds")
+saveRDS(true_mu_omega_p, "jags_output_100t_232s_100i_no_theta/true_mu_omega_p.rds")
 #infer mu
-saveRDS(infer_mu_a_rew, "jags_output_100t_232s_50i_no_theta/infer_mu_a_rew.rds")
-saveRDS(infer_mu_a_pun, "jags_output_100t_232s_50i_no_theta/infer_mu_a_pun.rds")
-saveRDS(infer_mu_K, "jags_output_100t_232s_50i_no_theta/infer_mu_K.rds")
-#saveRDS(infer_mu_theta, "jags_output_100t_232s_50i_no_theta/infer_mu_theta.rds")
-saveRDS(infer_mu_omega_f, "jags_output_100t_232s_50i_no_theta/infer_mu_omega_f.rds")
-saveRDS(infer_mu_omega_p, "jags_output_100t_232s_50i_no_theta/infer_mu_omega_p.rds")
+saveRDS(infer_mu_a_rew, "jags_output_100t_232s_100i_no_theta/infer_mu_a_rew.rds")
+saveRDS(infer_mu_a_pun, "jags_output_100t_232s_100i_no_theta/infer_mu_a_pun.rds")
+saveRDS(infer_mu_K, "jags_output_100t_232s_100i_no_theta/infer_mu_K.rds")
+#saveRDS(infer_mu_theta, "jags_output_100t_232s_100i_no_theta/infer_mu_theta.rds")
+saveRDS(infer_mu_omega_f, "jags_output_100t_232s_100i_no_theta/infer_mu_omega_f.rds")
+saveRDS(infer_mu_omega_p, "jags_output_100t_232s_100i_no_theta/infer_mu_omega_p.rds")
 #true lambda
-saveRDS(true_lambda_a_rew, "jags_output_100t_232s_50i_no_theta/true_lambda_a_rew.rds")
-saveRDS(true_lambda_a_pun, "jags_output_100t_232s_50i_no_theta/true_lambda_a_pun.rds")
-saveRDS(true_lambda_K, "jags_output_100t_232s_50i_no_theta/true_lambda_K.rds")
-#saveRDS(true_lambda_theta, "jags_output_100t_232s_50i_no_theta/true_lambda_theta.rds")
-saveRDS(true_lambda_omega_f, "jags_output_100t_232s_50i_no_theta/true_lambda_omega_f.rds")
-saveRDS(true_lambda_omega_p, "jags_output_100t_232s_50i_no_theta/true_lambda_omega_p.rds")
+saveRDS(true_lambda_a_rew, "jags_output_100t_232s_100i_no_theta/true_lambda_a_rew.rds")
+saveRDS(true_lambda_a_pun, "jags_output_100t_232s_100i_no_theta/true_lambda_a_pun.rds")
+saveRDS(true_lambda_K, "jags_output_100t_232s_100i_no_theta/true_lambda_K.rds")
+#saveRDS(true_lambda_theta, "jags_output_100t_232s_100i_no_theta/true_lambda_theta.rds")
+saveRDS(true_lambda_omega_f, "jags_output_100t_232s_100i_no_theta/true_lambda_omega_f.rds")
+saveRDS(true_lambda_omega_p, "jags_output_100t_232s_100i_no_theta/true_lambda_omega_p.rds")
 #infer lambda
-saveRDS(infer_lambda_a_rew, "jags_output_100t_232s_50i_no_theta/infer_lambda_a_rew.rds")
-saveRDS(infer_lambda_a_pun, "jags_output_100t_232s_50i_no_theta/infer_lambda_a_pun.rds")
-saveRDS(infer_lambda_K, "jags_output_100t_232s_50i_no_theta/infer_lambda_K.rds")
-#saveRDS(infer_lambda_theta, "jags_output_100t_232s_50i_no_theta/infer_lambda_theta.rds")
-saveRDS(infer_lambda_omega_f, "jags_output_100t_232s_50i_no_theta/infer_lambda_omega_f.rds")
-saveRDS(infer_lambda_omega_p, "jags_output_100t_232s_50i_no_theta/infer_lambda_omega_p.rds")
+saveRDS(infer_lambda_a_rew, "jags_output_100t_232s_100i_no_theta/infer_lambda_a_rew.rds")
+saveRDS(infer_lambda_a_pun, "jags_output_100t_232s_100i_no_theta/infer_lambda_a_pun.rds")
+saveRDS(infer_lambda_K, "jags_output_100t_232s_100i_no_theta/infer_lambda_K.rds")
+#saveRDS(infer_lambda_theta, "jags_output_100t_232s_100i_no_theta/infer_lambda_theta.rds")
+saveRDS(infer_lambda_omega_f, "jags_output_100t_232s_100i_no_theta/infer_lambda_omega_f.rds")
+saveRDS(infer_lambda_omega_p, "jags_output_100t_232s_100i_no_theta/infer_lambda_omega_p.rds")
 
 
 # let's look at some scatter plots
@@ -228,7 +228,7 @@ pl3 <- recov_plot(true_mu_K, infer_mu_K, c("true mu_K", "infer mu_K"), 'smoothed
 pl4 <- recov_plot(true_mu_omega_f, infer_mu_omega_f, c("true mu_omega_f", "infer mu_omega_f"), 'smoothed linear fit')
 pl5 <- recov_plot(true_mu_omega_p, infer_mu_omega_p, c("true mu_omega_p", "infer mu_omega_p"), 'smoothed linear fit')
 ggarrange(pl1, pl2, pl3, pl4, pl5)
-ggsave("jags_output_100t_232s_50i_no_theta/hier_ORL_rec_100t_232s_50i_no_theta_mu.png", width = 2000, height = 1150, units = 'px', dpi = 150) ##### CHANGE HERE
+ggsave("jags_output_100t_232s_100i_no_theta/hier_ORL_rec_100t_232s_100i_no_theta_mu.png", width = 2000, height = 1150, units = 'px', dpi = 150) ##### CHANGE HERE
 
 
 pl1 <- recov_plot(true_lambda_a_rew, infer_lambda_a_rew, c("true lambda_a_rew", "infer lambda_a_rew"), 'smoothed linear fit')
@@ -237,7 +237,7 @@ pl3 <- recov_plot(true_lambda_K, infer_lambda_K, c("true lambda_K", "infer lambd
 pl4 <- recov_plot(true_lambda_omega_f, infer_lambda_omega_f, c("true lambda_omega_f", "infer lambda_omega_f"), 'smoothed linear fit')
 pl5 <- recov_plot(true_lambda_omega_p, infer_lambda_omega_p, c("true lambda_omega_p", "infer lambda_omega_p"), 'smoothed linear fit')
 ggarrange(pl1, pl2, pl3, pl4, pl5)
-ggsave("jags_output_100t_232s_50i_no_theta/hier_ORL_rec_100t_232s_50i_no_theta_lambda.png", width = 2000, height = 1150, units = 'px', dpi = 150) ##### CHANGE HERE
+ggsave("jags_output_100t_232s_100i_no_theta/hier_ORL_rec_100t_232s_100i_no_theta_lambda.png", width = 2000, height = 1150, units = 'px', dpi = 150) ##### CHANGE HERE
 
 
 
