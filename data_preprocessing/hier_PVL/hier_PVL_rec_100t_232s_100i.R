@@ -172,26 +172,25 @@ end_time - start_time
 ############## saving outputs 
 #saveRDS(true_a, "testing.rds")
 
-
 saveRDS(true_mu_w, "jags_output_100t_232s_100i/true_mu_w.rds")
-saveRDS(true_mu_A, "jags_output_100t_232s_100i/true_mu_A.rds")
+saveRDS(true_mu_A, "jags_output_100t_232s_100i/true_mu_A_risk.rds")
 saveRDS(true_mu_theta, "jags_output_100t_232s_100i/true_mu_theta.rds")
-saveRDS(true_mu_a, "jags_output_100t_232s_100i/true_mu_a.rds")
+saveRDS(true_mu_a, "jags_output_100t_232s_100i/true_mu_alpha.rds")
 
 saveRDS(infer_mu_w, "jags_output_100t_232s_100i/infer_mu_w.rds")
-saveRDS(infer_mu_A, "jags_output_100t_232s_100i/infer_mu_A.rds")
+saveRDS(infer_mu_A, "jags_output_100t_232s_100i/infer_mu_A_risk.rds")
 saveRDS(infer_mu_theta, "jags_output_100t_232s_100i/infer_mu_theta.rds")
-saveRDS(infer_mu_a, "jags_output_100t_232s_100i/infer_mu_a.rds")
+saveRDS(infer_mu_a, "jags_output_100t_232s_100i/infer_mu_alpha.rds")
 
 saveRDS(true_lambda_w, "jags_output_100t_232s_100i/true_lambda_w.rds")
-saveRDS(true_lambda_A, "jags_output_100t_232s_100i/true_lambda_A.rds")
+saveRDS(true_lambda_A, "jags_output_100t_232s_100i/true_lambda_A_risk.rds")
 saveRDS(true_lambda_theta, "jags_output_100t_232s_100i/true_lambda_theta.rds")
-saveRDS(true_lambda_a, "jags_output_100t_232s_100i/true_lambda_a.rds")
+saveRDS(true_lambda_a, "jags_output_100t_232s_100i/true_lambda_alpha.rds")
 
 saveRDS(infer_lambda_w, "jags_output_100t_232s_100i/infer_lambda_w.rds")
-saveRDS(infer_lambda_A, "jags_output_100t_232s_100i/infer_lambda_A.rds")
+saveRDS(infer_lambda_A, "jags_output_100t_232s_100i/infer_lambda_A_risk.rds")
 saveRDS(infer_lambda_theta, "jags_output_100t_232s_100i/infer_lambda_theta.rds")
-saveRDS(infer_lambda_a, "jags_output_100t_232s_100i/infer_lambda_a.rds")
+saveRDS(infer_lambda_a, "jags_output_100t_232s_100i/infer_lambda_alpha.rds")
 
 ################ plots
 
@@ -203,7 +202,7 @@ pl2 <- recov_plot(true_mu_A, infer_mu_A, c("true mu_A", "infer mu_A"), 'smoothed
 pl3 <- recov_plot(true_mu_theta, infer_mu_theta, c("true mu_theta", "infer mu_theta"), 'smoothed linear fit')
 pl4 <- recov_plot(true_mu_a, infer_mu_a, c("true mu_a", "infer mu_a"), 'smoothed linear fit')
 ggarrange(pl1, pl2, pl3, pl4)
-ggsave("jags_output_100t_232_100i/hier_PVL_rec_100t_232_100i_mu.png", width = 2000, height = 1150, units = 'px', dpi = 150) ##### CHANGE HERE
+ggsave("jags_output_100t_232s_100i/hier_PVL_rec_100t_232_100i_mu.png", width = 2000, height = 1150, units = 'px', dpi = 150) ##### CHANGE HERE
 
 # sigma (aka. true_lambda) re-coded as precision
 pl1 <- recov_plot(infer_lambda_w, 1/(true_lambda_w^2), c("infer lambda_w","true lambda_w"), 'smoothed linear fit')
@@ -211,7 +210,7 @@ pl2 <- recov_plot(infer_lambda_A, 1/(true_lambda_A^2), c("infer lambda_A","true 
 pl3 <- recov_plot(infer_lambda_theta, 1/(true_lambda_theta^2), c("infer lambda_theta", "true lambda_theta"), 'smoothed linear fit')
 pl4 <- recov_plot(infer_lambda_a, 1/(true_lambda_a^2), c("infer lambda_a", "true lambda_a"), 'smoothed linear fit')
 ggarrange(pl1, pl2, pl3, pl4)
-ggsave("jags_output_100t_232_100i/hier_PVL_rec_100t_232_100i_lambda.png", width = 2000, height = 1150, units = 'px', dpi = 150)  ##### CHANGE HERE
+ggsave("jags_output_100t_232s_100i/hier_PVL_rec_100t_232_100i_lambda.png", width = 2000, height = 1150, units = 'px', dpi = 150)  ##### CHANGE HERE
 
 # lambda (aka. infer_lambda) re-coded as SD
 pl1 <- recov_plot(1/sqrt(infer_lambda_w), true_lambda_w, c("infer lambda_w","true lambda_w"), 'smoothed linear fit')
@@ -219,4 +218,4 @@ pl2 <- recov_plot(1/sqrt(infer_lambda_A), true_lambda_A, c("infer lambda_A","tru
 pl3 <- recov_plot(1/sqrt(infer_lambda_theta), true_lambda_theta, c("infer lambda_theta", "true lambda_theta"), 'smoothed linear fit')
 pl4 <- recov_plot(1/sqrt(infer_lambda_a), true_lambda_a, c("infer lambda_a", "true lambda_a"), 'smoothed linear fit')
 ggarrange(pl1, pl2, pl3, pl4)
-ggsave("jags_output_100t_232_100i/hier_PVL_rec_100t_232_100i_lambda_sd.png", width = 2000, height = 1150, units = 'px', dpi = 150) 
+ggsave("jags_output_100t_232s_100i/hier_PVL_rec_100t_232_100i_lambda_sd.png", width = 2000, height = 1150, units = 'px', dpi = 150) 
