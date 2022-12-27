@@ -1,5 +1,5 @@
 # More informative plotting - code-courtesy of Lasse - fanx!
-recov_plot <- function(true, infer, plot_lab, plot_col) {
+recov_plot <- function(true, infer, plot_lab, plot_col){
   
   # library(ggplot2)
   
@@ -10,6 +10,7 @@ recov_plot <- function(true, infer, plot_lab, plot_col) {
                        color = plot_col)) + #Setting aesthetics for plot
     geom_point() + #Giving points a color each
     geom_smooth(method = "lm", se = T, formula = "y ~ x") +
+    stat_poly_eq() + # get R-squared from gggpmisc package
     theme_minimal() + #Setting theme
     xlab(plot_lab[1]) + #Setting x label
     ylab(plot_lab[2]) + #Setting y label
