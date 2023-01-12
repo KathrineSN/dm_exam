@@ -1,0 +1,269 @@
+
+```{r}
+install.packages("pacman")
+pacman::p_load(R2jags, parallel, tidyverse)
+
+set.seed(1982)
+
+```
+
+
+```{r} 
+# Loading the IGT data
+data <- load("../../data/IGTdata.rdata")
+
+source("../../data_preprocessing.R")
+
+trials_95 <- data_preprocessing(choice_95, wi_95, lo_95, exclude_data = TRUE)
+trials_100 <- data_preprocessing(choice_100, wi_100, lo_100, exclude_data = TRUE)
+trials_150 <- data_preprocessing(choice_150, wi_150, lo_150, exclude_data = TRUE)
+
+# make one big dataframe 
+#df_final <- trials_100
+length(unique(trials_100$subjID))
+
+df_final <- trials_100
+```
+
+```{r}
+MPD <- function(x) {
+  density(x)$x[which(density(x)$y==max(density(x)$y))]
+}
+
+```
+
+
+```{r}
+# identify and count unique subject IDs
+subIDs <- unique(df_final$subjID)
+nsubs <- length(subIDs)
+#nsubs = 10
+ntrials_max <- 100
+
+# all choices (x) and outcomes (X)
+x_raw <- df_final$deck
+X_raw <- df_final$gain + df_final$loss #note the sign!
+```
+
+
+```{r}
+ntrials_all <- array(0,c(nsubs))
+x_all <- array(0,c(nsubs,ntrials_max))
+X_all <- array(0,c(nsubs,ntrials_max))
+
+for (s in 1:nsubs) {
+  
+  #record n trials for subject s
+  ntrials_all[s] <- length(x_raw[df_final$subjID==subIDs[s]])
+  
+  #pad trials with NA if n trials < maximum (i.e. 100)
+  x_sub <- x_raw[df_final$subjID==subIDs[s]] 
+  length(x_sub) <- ntrials_max
+  
+  X_sub <- X_raw[df_final$subjID==subIDs[s]] 
+  length(X_sub) <- ntrials_max
+  
+  # assign arrays
+  x_all[s,] <- x_sub
+  X_all[s,] <- X_sub
+  
+}
+
+# Scaling the payoffs (cuz the learning parameter becomes less relevant for very large payoffs/losses)
+X_all <- X_all/100
+```
+
+
+
+```{r}
+# Now we'll fit one subject just to make sure everything works
+x <- x_all[1,]
+X <- X_all[1,]
+
+ntrials <- ntrials_all[1]
+
+# set up jags and run jags model on one subject
+data <- list("x","X","ntrials") 
+params<-c("a_rew","a_pun","K","theta","omega_f","omega_p","p")
+samples <- jags.parallel(data, inits=NULL, params,
+                model.file ="../ORL.txt",
+                n.chains=3, n.iter=5000, n.burnin=1000, n.thin=1, n.cluster=4)
+
+# let's look at the posteriors for the parameters
+par(mfrow=c(3,2))
+plot(density(samples$BUGSoutput$sims.list$a_rew))
+plot(density(samples$BUGSoutput$sims.list$a_pun))
+plot(density(samples$BUGSoutput$sims.list$theta))
+plot(density(samples$BUGSoutput$sims.list$K))
+plot(density(samples$BUGSoutput$sims.list$omega_f))
+plot(density(samples$BUGSoutput$sims.list$omega_p))
+
+```
+
+
+```{r}
+x <- x_all
+X <- X_all
+
+ntrials <- ntrials_all
+
+# set up jags and run jags model
+data <- list("x","X","ntrials","nsubs") 
+# NB! we're not tracking theta cuz we're not modelling it in order reduce complexity a bit (hence, we're just setting it to 1 in "hier_ORL.txt")
+params<-c("mu_a_rew","mu_a_pun","mu_K","mu_theta","mu_omega_f","mu_omega_p", "lambda_a_rew","lambda_a_pun","lambda_K","lambda_theta","lambda_omega_f","lambda_omega_p") 
+
+start_time = Sys.time()
+samples <- jags.parallel(data, inits=NULL, params,
+                         model.file ="../hier_ORL.txt",
+                         n.chains=3, n.iter=5000, n.burnin=1000, n.thin=1, n.cluster=4)
+end_time = Sys.time()
+end_time - start_time
+
+```
+
+```{r}
+setwd("/work/Exam project/dm_exam/ORL/ORL_parameter_estimation/")
+saveRDS(samples, file = "samples_ORL_parameter_estimation_hier.Rds")
+```
+
+```{r}
+## Plotting the convergence diagnostics
+
+mcs = samples$BUGSoutput$sims.array
+
+dim(mcs)
+
+png("/work/Exam project/dm_exam/ORL/ORL_parameter_estimation/convergence_1.png", res=300, width = 2000, height = 1500)
+par(mfrow = c(2,2))
+
+plot(mcs[,1,1], type = "l", col = "red", main = "deviance", ylab = "deviance", xlab = "iteration", ylim = c(48900,49600))
+lines(mcs[,2,1], type = "l", col = "green")
+lines(mcs[,3,1], type = "l", col = "blue")
+dev.off()
+
+png("/work/Exam project/dm_exam/ORL/ORL_parameter_estimation/convergence_2.png", res=300, width = 2000, height = 1500)
+par(mfrow = c(2,2))
+
+plot(mcs[,1,2], type = "l", col = "red", main = expression(lambda[K]), ylab = expression(lambda[K]), xlab = "iteration", ylim = c(0,1))
+lines(mcs[,2,2], type = "l", col = "green")
+lines(mcs[,3,2], type = "l", col = "blue")
+
+plot(mcs[,1,3], type = "l", col = "red", main = expression(lambda[a_pun]), ylab = expression(lambda[a_pun]), xlab = "iteration", ylim = c(18,80))
+lines(mcs[,2,3], type = "l", col = "green")
+lines(mcs[,3,3], type = "l", col = "blue")
+
+plot(mcs[,1,4], type = "l", col = "red", main = expression(lambda[a_rew]), ylab = expression(lambda[a_rew]), xlab = "iteration", ylim = c(4,25))
+lines(mcs[,2,4], type = "l", col = "green")
+lines(mcs[,3,4], type = "l", col = "blue")
+
+plot(mcs[,1,5], type = "l", col = "red", main = expression(lambda[omega[f]]), ylab = expression(lambda[omega[f]]), xlab = "iteration", ylim = c(0.004,0.026))
+lines(mcs[,2,5], type = "l", col = "green")
+lines(mcs[,3,5], type = "l", col = "blue")
+dev.off()
+
+png("/work/Exam project/dm_exam/ORL/ORL_parameter_estimation/convergence_3.png", res=300, width = 2000, height = 1500)
+par(mfrow = c(2,2))
+
+plot(mcs[,1,6], type = "l", col = "red", main = expression(lambda[omega[p]]), ylab = expression(lambda[omega[p]]), xlab = "iteration")
+lines(mcs[,2,6], type = "l", col = "green")
+lines(mcs[,3,6], type = "l", col = "blue")
+
+plot(mcs[,1,7], type = "l", col = "red", main = expression(lambda[theta]), ylab = expression(lambda[theta]), xlab = "iteration")
+lines(mcs[,2,7], type = "l", col = "green")
+lines(mcs[,3,7], type = "l", col = "blue")
+
+plot(mcs[,1,8], type = "l", col = "red", main = expression(mu[K]), ylab = expression(mu[K]), xlab = "iteration")
+lines(mcs[,2,8], type = "l", col = "green")
+lines(mcs[,3,8], type = "l", col = "blue")
+
+plot(mcs[,1,9], type = "l", col = "red", main = expression(mu[a_pun]), ylab = expression(mu[a_pun]), xlab = "iteration")
+lines(mcs[,2,9], type = "l", col = "green")
+lines(mcs[,3,9], type = "l", col = "blue")
+dev.off()
+
+png("/work/Exam project/dm_exam/ORL/ORL_parameter_estimation/convergence_4.png", res=300, width = 2000, height = 1500)
+par(mfrow = c(2,2))
+plot(mcs[,1,10], type = "l", col = "red", main = expression(mu[a_rew]), ylab = expression(mu[a_rew]), xlab = "iteration", ylim = c(0.3, 0.6))
+lines(mcs[,2,10], type = "l", col = "green")
+lines(mcs[,3,10], type = "l", col = "blue")
+
+plot(mcs[,1,11], type = "l", col = "red", main = expression(mu[omega[f]]), ylab = expression(mu[omega[f]]), xlab = "iteration", ylim = c(4, 17))
+lines(mcs[,2,11], type = "l", col = "green")
+lines(mcs[,3,11], type = "l", col = "blue")
+
+plot(mcs[,1,12], type = "l", col = "red", main = expression(mu[omega[p]]), ylab = expression(mu[omega[p]]), xlab = "iteration", ylim = c(-10,8))
+lines(mcs[,2,12], type = "l", col = "green")
+lines(mcs[,3,12], type = "l", col = "blue")
+
+plot(mcs[,1,13], type = "l", col = "red", main = expression(mu[theta]), ylab = expression(mu[theta]), xlab = "iteration", ylim = c(0.09, 0.30))
+lines(mcs[,2,13], type = "l", col = "green")
+lines(mcs[,3,13], type = "l", col = "blue")
+
+
+```
+
+
+
+
+
+```{r}
+setwd("/work/Exam project/dm_exam/ORL/ORL_parameter_estimation/")
+saveRDS(samples, file = "samples_ORL_parameter_estimation_hier.Rds")
+```
+
+
+```{r}
+png("/work/Exam project/dm_exam/ORL/ORL_parameter_estimation/ORL_lambdas.png", res=300, width = 2000, height = 1800)
+par(mfrow=c(3,2))
+plot(density(samples$BUGSoutput$sims.list$lambda_a_rew), main = expression(lambda[a_rew]))
+plot(density(samples$BUGSoutput$sims.list$lambda_a_pun), main = expression(lambda[a_pun]))
+plot(density(samples$BUGSoutput$sims.list$lambda_K), main = expression(lambda[K]))
+plot(density(samples$BUGSoutput$sims.list$lambda_theta), main = expression(lambda[theta]))
+plot(density(samples$BUGSoutput$sims.list$lambda_omega_f), main = expression(lambda[omega[f]]))
+plot(density(samples$BUGSoutput$sims.list$lambda_omega_p), main = expression(lambda[omega[p]]))
+dev.off()
+```
+```{r}
+png("/work/Exam project/dm_exam/ORL/ORL_parameter_estimation/ORL_mus.png", res=300, width = 2000, height = 1800)
+par(mfrow=c(3,2))
+plot(density(samples$BUGSoutput$sims.list$mu_a_rew), main = expression(mu[a_rew]))
+plot(density(samples$BUGSoutput$sims.list$mu_a_pun), main = expression(mu[a_pun]))
+plot(density(samples$BUGSoutput$sims.list$mu_K), main = expression(mu[K]))
+plot(density(samples$BUGSoutput$sims.list$mu_theta), main = expression(mu[theta]))
+plot(density(samples$BUGSoutput$sims.list$mu_omega_f), main = expression(mu[omega[f]]))
+plot(density(samples$BUGSoutput$sims.list$mu_omega_p), main = expression(mu[omega[p]]))
+dev.off()
+```
+
+```{r}
+samples
+```
+
+
+```{r}
+samples = readRDS(file = "samples_ORL_parameter_estimation_hier.Rds")
+
+```
+
+```{r}
+
+print(MPD(samples$BUGSoutput$sims.list$lambda_K))
+print(MPD(samples$BUGSoutput$sims.list$lambda_a_pun))
+print(MPD(samples$BUGSoutput$sims.list$lambda_a_rew))
+print(MPD(samples$BUGSoutput$sims.list$lambda_omega_f))
+print(MPD(samples$BUGSoutput$sims.list$lambda_omega_p))
+print(MPD(samples$BUGSoutput$sims.list$lambda_theta))
+print(MPD(samples$BUGSoutput$sims.list$mu_K))
+print(MPD(samples$BUGSoutput$sims.list$mu_a_pun))
+print(MPD(samples$BUGSoutput$sims.list$mu_a_rew))
+print(MPD(samples$BUGSoutput$sims.list$mu_omega_f))
+print(MPD(samples$BUGSoutput$sims.list$mu_omega_p))
+print(MPD(samples$BUGSoutput$sims.list$mu_theta))
+
+```
+
+
+
+
+
+

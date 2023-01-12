@@ -1,0 +1,225 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+install.packages("pacman")
+pacman::p_load(R2jags, parallel, tidyverse)
+
+set.seed(1982)
+```
+
+
+```{r}
+data <- load("../../data/IGTdata.rdata")
+
+source("../../data_preprocessing.R")
+
+trials_95 <- data_preprocessing(choice_95, wi_95, lo_95, exclude_data = TRUE)
+trials_100 <- data_preprocessing(choice_100, wi_100, lo_100, exclude_data = TRUE)
+trials_150 <- data_preprocessing(choice_150, wi_150, lo_150, exclude_data = TRUE)
+
+# make one big dataframe 
+#df_final <- trials_100
+length(unique(trials_100$subjID))
+
+df_final <- trials_100
+```
+
+
+```{r}
+
+MPD <- function(x) {
+  density(x)$x[which(density(x)$y==max(density(x)$y))]
+}
+
+```
+
+
+```{r}
+subIDs <- unique(df_final$subjID)
+nsubs <- length(subIDs)
+ntrials_max <- 100
+
+x_raw <- df_final$deck
+X_raw <- df_final$gain + df_final$loss #note the sign!
+```
+
+
+```{r}
+# empty arrays to fill
+ntrials_all <- array(0,c(nsubs))
+x_all <- array(0,c(nsubs,ntrials_max))
+X_all <- array(0,c(nsubs,ntrials_max))
+
+for (s in 1:nsubs) {
+  
+  #record n trials for subject s
+  ntrials_all[s] <- length(x_raw[df_final$subjID==subIDs[s]])
+  
+  #pad trials with NA if n trials < maximum (i.e. 100)
+  x_sub <- x_raw[df_final$subjID==subIDs[s]] 
+  length(x_sub) <- ntrials_max
+  
+  X_sub <- X_raw[df_final$subjID==subIDs[s]] 
+  length(X_sub) <- ntrials_max
+  
+  # assign arrays
+  x_all[s,] <- x_sub
+  X_all[s,] <- X_sub
+  
+}
+  
+```
+
+
+```{r}
+# Now we'll fit one subject just to make sure everything works
+
+x <- x_all[1,]
+X <- X_all[1,]
+
+ntrials <- ntrials_all[1]
+
+# set up jags and run jags model on one subject
+data <- list("x","X","ntrials") 
+params<-c("w","A","theta","a","p")
+temp_samples <- jags.parallel(data, inits=NULL, params,
+                model.file ="../PVL.txt",
+                n.chains=3, n.iter=5000, n.burnin=1000, n.thin=1, n.cluster=4)
+
+# let's look at the posteriors for the parameters
+par(mfrow=c(2,2))
+plot(density(temp_samples$BUGSoutput$sims.list$w))
+plot(density(temp_samples$BUGSoutput$sims.list$A))
+plot(density(temp_samples$BUGSoutput$sims.list$theta))
+plot(density(temp_samples$BUGSoutput$sims.list$a))
+```
+
+```{r} 
+# Run the hierachical
+x <- x_all
+X <- X_all
+nsubs = 232
+ntrials <- ntrials_all
+
+# set up jags and run jags model
+data <- list("x","X","ntrials","nsubs") 
+params<-c("mu_w","mu_A","mu_theta","mu_a","lambda_w","lambda_A","lambda_theta","lambda_a")
+
+samples <- jags.parallel(data, inits=NULL, params,
+                model.file ="../hier_PVL.txt",
+                n.chains=3, n.iter=5000, n.burnin=1000, n.thin=1, n.cluster=64)
+
+# let's look at the posteriors for the parameters
+par(mfrow=c(2,2))
+plot(density(samples$BUGSoutput$sims.list$mu_w))
+plot(density(samples$BUGSoutput$sims.list$mu_A))
+plot(density(samples$BUGSoutput$sims.list$mu_theta))
+plot(density(samples$BUGSoutput$sims.list$mu_a))
+
+# let's look at the posteriors for the parameters
+par(mfrow=c(2,2))
+plot(density(samples$BUGSoutput$sims.list$lambda_w))
+plot(density(samples$BUGSoutput$sims.list$lambda_A))
+plot(density(samples$BUGSoutput$sims.list$lambda_theta))
+plot(density(samples$BUGSoutput$sims.list$lambda_a))
+
+```
+
+```{r}
+traceplot(samples)
+```
+
+
+
+```{r}
+setwd("/work/Exam project/dm_exam/PVL/PVL_parameter_estimation/")
+saveRDS(samples, file = "samples_PLV_parameter_estimation_hier.Rds")
+```
+```{r}
+# Loading the object to fix the plot
+setwd("/work/Exam project/dm_exam/PVL/PVL_parameter_estimation/")
+samples = readRDS(file = "samples_PLV_parameter_estimation_hier.Rds")
+
+# let's look at the posteriors for the parameters
+png("/work/Exam project/dm_exam/PVL/PVL_parameter_estimation/PVL_mus.png", res=300, width = 2000, height = 1500)
+par(mfrow=c(2,2))
+plot(density(samples$BUGSoutput$sims.list$mu_w), main = expression(mu[w]))
+plot(density(samples$BUGSoutput$sims.list$mu_A), main = expression(mu[A]))
+plot(density(samples$BUGSoutput$sims.list$mu_theta), main = expression(mu[theta]))
+plot(density(samples$BUGSoutput$sims.list$mu_a), main = expression(mu[a]))
+dev.off()
+
+# let's look at the posteriors for the parameters
+png("/work/Exam project/dm_exam/PVL/PVL_parameter_estimation/PVL_lambdas.png", res=300, width = 2000, height = 1500)
+par(mfrow=c(2,2))
+plot(density(samples$BUGSoutput$sims.list$lambda_w), main = expression(lambda[w]))
+plot(density(samples$BUGSoutput$sims.list$lambda_A), main = expression(lambda[A]))
+plot(density(samples$BUGSoutput$sims.list$lambda_theta), main = expression(lambda[theta]))
+plot(density(samples$BUGSoutput$sims.list$lambda_a), main = expression(lambda[a]))
+dev.off()
+
+```
+
+
+
+```{r}
+## fixing convergence diagnostics plots
+
+mcs = samples$BUGSoutput$sims.array
+
+dim(mcs)
+
+png("/work/Exam project/dm_exam/PVL/PVL_parameter_estimation/convergence_1.png", res=300, width = 2000, height = 1500)
+par(mfrow = c(2,2), mai = c(0.2, 0.1, 0.1, 0.1))
+
+plot(mcs[,1,1], type = "l", col = "red", main = "deviance", ylab = "deviance", xlab = "iteration")
+lines(mcs[,2,1], type = "l", col = "green")
+lines(mcs[,3,1], type = "l", col = "blue")
+dev.off()
+
+png("/work/Exam project/dm_exam/PVL/PVL_parameter_estimation/convergence_2.png", res=300, width = 2000, height = 1500)
+par(mfrow = c(2,2))
+
+plot(mcs[,1,2], type = "l", col = "red", main = expression(mu[w]), ylab = expression(mu[w]), xlab = "iteration", ylim = c(20,91))
+lines(mcs[,2,2], type = "l", col = "green")
+lines(mcs[,3,2], type = "l", col = "blue")
+
+plot(mcs[,1,3], type = "l", col = "red", main = expression(mu[A]), ylab = expression(mu[A]), xlab = "iteration")
+lines(mcs[,2,3], type = "l", col = "green")
+lines(mcs[,3,3], type = "l", col = "blue")
+
+plot(mcs[,1,4], type = "l", col = "red", main = expression(mu[theta]), ylab = expression(mu[theta]), xlab = "iteration" , ylim = c(35,210))
+lines(mcs[,2,4], type = "l", col = "green")
+lines(mcs[,3,4], type = "l", col = "blue")
+
+plot(mcs[,1,5], type = "l", col = "red", main = expression(mu[a]), ylab = expression(mu[a]), xlab = "iteration", ylim = c(0.5, 8))
+lines(mcs[,2,5], type = "l", col = "green")
+lines(mcs[,3,5], type = "l", col = "blue")
+dev.off()
+
+png("/work/Exam project/dm_exam/PVL/PVL_parameter_estimation/convergence_3.png", res=300, width = 2000, height = 1500)
+par(mfrow = c(2,2))
+
+plot(mcs[,1,6], type = "l", col = "red", main = expression(lambda[w]), ylab = expression(lambda[w]), xlab = "iteration", ylim = c(0.45, 0.60))
+lines(mcs[,2,6], type = "l", col = "green")
+lines(mcs[,3,6], type = "l", col = "blue")
+
+plot(mcs[,1,7], type = "l", col = "red", main = expression(lambda[A]), ylab = expression(lambda[A]), xlab = "iteration", ylim = c(0.30, 0.65))
+lines(mcs[,2,7], type = "l", col = "green")
+lines(mcs[,3,7], type = "l", col = "blue")
+
+plot(mcs[,1,8], type = "l", col = "red", main = expression(lambda[theta]), ylab = expression(lambda[theta]), xlab = "iteration", ylim = c(0, 0.08))
+lines(mcs[,2,8], type = "l", col = "green")
+lines(mcs[,3,8], type = "l", col = "blue")
+
+plot(mcs[,1,9], type = "l", col = "red", main = expression(lambda[a]), ylab = expression(lambda[a]), xlab = "iteration", ylim = c(0.05, 0.65))
+lines(mcs[,2,9], type = "l", col = "green")
+lines(mcs[,3,9], type = "l", col = "blue")
+
+```
+
+
+
+

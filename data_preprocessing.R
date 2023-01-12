@@ -23,7 +23,7 @@ data_preprocessing <- function(choice_no, wi_no, lo_no, exclude_data = FALSE){
       slice(163:181, 292:504) #%>% 
       #select(1:95) # keep only the 95 first trials
   }
-  
+
   #df_final <- data.frame()
   df_final <- tibble()
   
