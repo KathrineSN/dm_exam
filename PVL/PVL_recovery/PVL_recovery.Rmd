@@ -230,6 +230,9 @@ pl2 <- recov_plot(true_A, infer_A, c("true A", "infer A"), 'smoothed linear fit'
 pl3 <- recov_plot(true_a, infer_a, c("true a", "infer a"), 'smoothed linear fit')
 pl4 <- recov_plot(true_theta, infer_theta, c("true theta", "infer theta"), 'smoothed linear fit')
 ggarrange(pl1, pl2, pl3, pl4)
+
+#ggsave("saved_jags_output/PVL_rec_100t_232_100i_all_params.png", width = 2000, height = 1150, units = 'px', dpi = 150)  ##### CHANGE HERE
+
 ```
 
 ```{r}
@@ -247,5 +250,23 @@ getwd()
 #ggsave("PVL_recov_theta.png", pl4)
 
 
+```
+
+```{r}
+infer_A <- readRDS("saved_jags_output/infer_A_risk.rds")
+infer_a <- readRDS("saved_jags_output/infer_alpha.rds")
+infer_theta <- readRDS("saved_jags_output/infer_theta.rds")
+infer_w <- readRDS("saved_jags_output/infer_w.rds")
+
+true_A <- readRDS("saved_jags_output/true_A_risk.rds")
+true_a <- readRDS("saved_jags_output/true_alpha.rds")
+true_theta<- readRDS("saved_jags_output/true_theta.rds")
+true_w <-readRDS("saved_jags_output/true_w.rds")
+
+
+```
+
+```{r}
+saveRDS(true_a, "testing")
 ```
 
