@@ -1,27 +1,21 @@
-
-```{r, include=FALSE}
-
-# Installing packages
+```{r}
 install.packages("pacman")
-pacman::p_load(R2jags, parallel, ggplot2, tidyverse)
+pacman::p_load(R2jags, parallel, tidyverse)
+
 set.seed(1982)
+
 ```
 
 ```{r}
-# defining a function for calculating the maximum of the posterior density (not exactly the same as the mode)
-
 MPD <- function(x) {
   density(x)$x[which(density(x)$y==max(density(x)$y))]
 }
 ```
 
-```{r}
-getwd()
-```
 
 ```{r}
+# Loading the IGT data
 data <- load("../../data/IGTdata.rdata")
-
 
 source("../../data_preprocessing.R")
 
@@ -30,15 +24,13 @@ trials_100 <- data_preprocessing(choice_100, wi_100, lo_100, exclude_data = TRUE
 trials_150 <- data_preprocessing(choice_150, wi_150, lo_150, exclude_data = TRUE)
 
 # make one big dataframe 
-#df_final <- rbind(trials_95, trials_100, trials_150)
-df_final <- trials_100
-
+#df_final <- trials_100
 length(unique(trials_100$subjID))
+
+df_final <- trials_100
 ```
 
 ```{r}
-# Identify choices, subjects and outcomes
-# identify and count unique subject IDs
 subIDs <- unique(df_final$subjID)
 nsubs <- length(subIDs)
 #nsubs <- 10
@@ -47,18 +39,9 @@ ntrials_max <- 100
 # all choices (x) and outcomes (X)
 x_raw <- df_final$deck
 X_raw <- df_final$gain + df_final$loss #note the sign!
-
 ```
 
 ```{r}
-#--- assign choices and outcomes in trial x sub matrix
-
-#different number of trials across subjects. We'll need to fix this by padding arrays of < 100
-#this is just so we can make the array
-#then we'll also need to record number of valid trials for each sub, 
-#then run the JAGS model on only valid trials
-
-# empty arrays to fill
 ntrials_all <- array(0,c(nsubs))
 x_all <- array(0,c(nsubs,ntrials_max))
 X_all <- array(0,c(nsubs,ntrials_max))
@@ -78,49 +61,42 @@ for (s in 1:nsubs) {
   # assign arrays
   x_all[s,] <- x_sub
   X_all[s,] <- X_sub
+  
 }
+
+# Scaling the payoffs (cuz the learning parameter becomes less relevant for very large payoffs/losses)
+X_all <- X_all/100
 ```
 
-
 ```{r}
-#----------testing our data curation by running JAGS on one subject
-
-# Now we'll fit one subject just to make sure everything works
-
-x <- x_all[1,] # selecting choices from subj 1
-X <- X_all[1,] # selecting payoffs from subj 1
+# fitting to one subject
+x <- x_all[1,]
+X <- X_all[1,]
 
 ntrials <- ntrials_all[1]
 
 # set up jags and run jags model on one subject
 data <- list("x","X","ntrials") 
-params<-c("w","A","theta","a","p")
-temp_samples <- jags.parallel(data, inits=NULL, params,
-                              model.file ="../PVL.txt",
-                              n.chains=3, n.iter=5000, n.burnin=1000, n.thin=1, n.cluster=4)
+params<-c("a_rew","a_pun","K","theta","omega_f","omega_p","p")
+temp_samples <- jags(data, inits=NULL, params,
+                model.file ="../ORL.txt",
+                n.chains=3, n.iter=5000, n.burnin=1000, n.thin=1)
 
-
-```
-
-```{r}
 # let's look at the posteriors for the parameters
-par(mfrow=c(2,2))
-plot(density(temp_samples$BUGSoutput$sims.list$w), main = "w")
-plot(density(temp_samples$BUGSoutput$sims.list$A), main = "A")
-plot(density(temp_samples$BUGSoutput$sims.list$theta), main = expression(theta))
-plot(density(temp_samples$BUGSoutput$sims.list$a), main = "a")
-mtext("Posterior distributions",                   # Add main title
-      side = 3,
-      line = - 1,
-      outer = TRUE)
+par(mfrow=c(3,2))
+plot(density(temp_samples$BUGSoutput$sims.list$a_rew))
+plot(density(temp_samples$BUGSoutput$sims.list$a_pun))
+plot(density(temp_samples$BUGSoutput$sims.list$theta))
+plot(density(temp_samples$BUGSoutput$sims.list$K))
+plot(density(temp_samples$BUGSoutput$sims.list$omega_f))
+plot(density(temp_samples$BUGSoutput$sims.list$omega_p))
+
 ```
 
 
 
 ```{r}
-#----------Posterior predictive checks of descriptive accuracy
-
-# Posterior prediction - start by looking at posteriors for p parameter
+# Running on all subs
 
 p_post <- temp_samples$BUGSoutput$sims.list$p # probabilities as the outcome from softmax
 
@@ -152,7 +128,6 @@ for (t in 1:ntrials) {
 # how well did our model do?
 sum(x_predict==x)
 
-
 # let's see how the model goes for more than 1 subject. Let's run this on all subjects
 pred_success <- array(nsubs)
 
@@ -167,9 +142,9 @@ for (s in 1:nsubs) {
   
   # set up jags and run jags model on one subject
   data <- list("x","X","ntrials") 
-  params<-c("w","A","theta","a","p")
+  params<-c("a_rew","a_pun","K","theta","omega_f","omega_p","p")
   temp_samples <- jags.parallel(data, inits=NULL, params,
-                                model.file ="../PVL.txt",
+                                model.file ="../ORL.txt",
                                 n.chains=3, n.iter=5000, n.burnin=1000, n.thin=1, n.cluster=4)
   
   p_post <- temp_samples$BUGSoutput$sims.list$p
@@ -212,41 +187,31 @@ ggplot(pred_df, aes(sub, pred_success_adjust)) +
   geom_ribbon(aes(xmin = -Inf, xmax = Inf, ymin = avg - std, ymax = avg + std), fill = "pink", alpha = 0.6) + 
   geom_line(aes(y=avg))
 
-setwd("/work/Exam project/dm_exam/PVL/PVL_posterior_predictive_checks/")
-ggsave('poster_predictive_check_PLV.png')
-```
-
-
-```{r}
-
-setwd("/work/Exam project/dm_exam/PVL/PVL_posterior_predictive_checks/")
-saveRDS(pred_df, file = "pred_df_PLV_posterior_predictive_checks.Rds")
+#setwd("/work/Exam project/dm_exam/ORL/ORL_posterior_predictive_checks/")
+ggsave('poster_predictive_check_ORL.png')
 
 ```
 
 ```{r}
-setwd("/work/Exam project/dm_exam/PVL/PVL_posterior_predictive_checks/")
-pred_df = readRDS(file = "pred_df_PLV_posterior_predictive_checks.Rds")
+getwd()
+```
 
-# plotting code courtesy of Mia
-pred_df$sub <- 1:232 # rownames(pred_df) # creating a subject index
-pred_df$avg <- mean(pred_df$pred_success)
-pred_df$std <- sd(pred_df$pred_success)
-pred_df$chance <- .25
+
+```{r}
+#setwd("/work/Exam project/dm_exam/ORL/ORL_posterior_predictive_checks/")
+saveRDS(pred_df, file = "pred_df_ORL_posterior_predictive_checks.Rds")
+```
+
+
+```{r}
 ggplot(pred_df, aes(sub, pred_success_adjust)) +
   geom_point() +
   geom_line(aes(y=chance), linetype="dashed", color = "black") +
   geom_ribbon(aes(xmin = -Inf, xmax = Inf, ymin = avg - std, ymax = avg + std), fill = "pink", alpha = 0.6) + 
   geom_line(aes(y=avg)) + labs(x = 'subject', y = 'predicted success percentage')
-
-ggsave('poster_predictive_check_PLV_attempt2.png')
+ggsave('poster_predictive_check_ORL.png')
 
 ```
-
-
-
-
-
 
 
 
