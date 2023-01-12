@@ -1,7 +1,7 @@
 ## Comparing Decision-Making Models of the Iowa Gambling Task
 
 #### Exam project for the course Decision Making by Sigrid & Kathrine
-We compare PVL-Delta and ORL to investigate the need for differentiating between decision from description and decision from experience in cognitive modeling
+We compare PVL-Delta and ORL to investigate the need for differentiating between decision from description and decision from experience in cognitive modeling.
 
 ### Project Organization
 The organization of the project is as follows:
