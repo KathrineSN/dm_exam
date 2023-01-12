@@ -1,0 +1,72 @@
+---
+title: "fixing_data"
+output: html_document
+date: '2022-12-20'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+pacman::p_load(tidyverse)
+```
+
+```{r}
+load("../data/IGTdata.rdata")
+```
+
+
+Having read the article behind the "Many Labs" IGT collaboration (Steingroever et al., 2015), it is clear that we need to exclude the following datasets/studies from the collective pool of studies. Reasons for excluding the studies includes them having randomized the sequence of rewards and losses between participants and one study altering the original task by incooporating introspective questions in the task. 
+
+Studies to be excluded;
+- all studies with 150 trials 
+
+Studies with 100 trials;
+- Horstmann
+- Steingroever
+- Maia & McClelland
+
+Studies to be INCLUDED:
+- Fridberg (95 trials)
+- Kjome
+- Premkumar
+- Wood
+- Worthy
+
+```{r}
+# 
+# index_100 <- index_100 %>% 
+#   filter(
+#     Study == "Kjome" | 
+#       Study == "Premkumar" | 
+#       Study == "Wood" | 
+#       Study == "Worthy"
+#   )
+
+# magic number is 232 subjects 
+
+# slices
+# 
+# 163:181 # kjome
+# 292:316 # premkumar
+# 317:469 # wood
+# 470:504 # worthy
+
+# this is put into the function
+```
+
+The preprocessing function selects the relevant studies and cuts the 100 trials studies down to 95. 
+
+```{r loading data}
+load("../data/IGTdata.rdata")
+source("../data_preprocessing.R")
+trials_95 <- data_preprocessing(choice_95, wi_95, lo_95)
+trials_100 <- data_preprocessing(choice_100, wi_100, lo_100, exclude_data = TRUE) 
+
+# make one big dataframe 
+df_final <- rbind(trials_95, trials_100)
+```
+
+References
+Steingroever, H., Fridberg, D. J., Horstmann, A., Kjome, K. L., Kumari, V., Lane, S. D., ... & Wagenmakers, E. J. (2015). Data from 617 healthy participants performing the Iowa gambling task: A" many labs" collaboration. Journal of Open Psychology Data, 3(1), 340-353.
